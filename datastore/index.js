@@ -9,7 +9,6 @@ var items = {};
 
 exports.create = (text, callback) => {
   counter.getNextUniqueId((err, id) => {
-    console.log('id: ', id);
     items[id] = text;
     fs.writeFile(path.join(this.dataDir, `${id}.txt`), text, (err) => {
       callback(null, { id, text });
@@ -18,11 +17,32 @@ exports.create = (text, callback) => {
 };
 
 // fs.readdir(path[, options], callback)
+
+
+
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  let dataDir = this.dataDir;
+  let cb = callback;
+  fs.readdir(dataDir, (err, fileArr) => {
+    let returnData = [];
+    let index = 0;
+    if (fileArr.length) {
+      readFile(fileArr[0].substring(0, 5));
+    } else {
+      callback(null, returnData);
+    }
+
+    function readFile(id) {
+      fs.readFile(path.join(dataDir, `${id}.txt`), (err, text) => {
+        returnData.push({ id, text: id /* text.toString() */ });
+        if (index < fileArr.length - 1) {
+          readFile(fileArr[++index].substring(0, 5));
+        } else {
+          cb(null, returnData);
+        }
+      });
+    }
   });
-  callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
