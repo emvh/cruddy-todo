@@ -38,13 +38,20 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+exports.getNextUniqueId = (cb) => {
+  readCounter((err, data) => {
+    writeCounter ( data + 1 , (err, nextUId) => {
+      cb(err, nextUId);
+    });
+  });
+  // return zeroPaddedNumber(counter);
 };
-
-
 
 // Configuration -- DO NOT MODIFY //////////////////////////////////////////////
 
 exports.counterFile = path.join(__dirname, 'counter.txt');
+
+
+// 0001, 'name', 'last name'
+// 0002, 'anothername', 'lname'
+
