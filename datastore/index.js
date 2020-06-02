@@ -16,52 +16,58 @@ exports.create = (text, callback) => {
   });
 };
 
-// fs.readdir(path[, options], callback)
-
-
-
 exports.readAll = (callback) => {
-  let dataDir = this.dataDir;
-  let cb = callback;
-  fs.readdir(dataDir, (err, fileArr) => {
-    let returnData = [];
-    let index = 0;
-    if (fileArr.length) {
-      readFile(fileArr[0].substring(0, 5));
-    } else {
-      callback(null, returnData);
+  // let dataDir = this.dataDir;
+  fs.readdir(this.dataDir, (err, fileArr) => {
+    let files = [];
+    for (let i = 0; i < fileArr.length; i++) {
+      let data = fileArr[i].substring(0, 5);
+      files.push({ id: data, text: data });
     }
+    callback(null, files);
 
-    function readFile(id) {
-      fs.readFile(path.join(dataDir, `${id}.txt`), (err, text) => {
-        returnData.push({ id, text: id /* text.toString() */ });
-        if (index < fileArr.length - 1) {
-          readFile(fileArr[++index].substring(0, 5));
-        } else {
-          cb(null, returnData);
-        }
-      });
-    }
+    // let returnData = [];
+    // let index = 0;
+    // if (fileArr.length) {
+    //   readFile(fileArr[0].substring(0, 5));
+    // } else {
+    //   callback(null, returnData);
+    // }
+
+    // function readFile(id) {
+    //   fs.readFile(path.join(dataDir, `${id}.txt`), (err, text) => {
+
+    //     returnData.push({ id, text: id /* text.toString() */ });
+    //     if (index < fileArr.length - 1) {
+    //       readFile(fileArr[++index].substring(0, 5));
+    //     } else {
+    //       cb(null, returnData);
+    //     }
+    //   });
+    // }
   });
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  fs.readFile(path.join(this.dataDir, `${id}.txt`), (err, text) => {
+    if (err) {
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      callback(null, { id, text: text.toString() });
+    }
+  });
 };
 
 exports.update = (id, text, callback) => {
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  fs.readFile(path.join(this.dataDir, `${id}.txt`), (err, data) => {
+    if (err) {
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      fs.writeFile(path.join(this.dataDir, `${id}.txt`), text, (err) => {
+        callback(null, { id, text });
+      });
+    }
+  });
 };
 
 exports.delete = (id, callback) => {
